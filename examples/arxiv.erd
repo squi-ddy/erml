@@ -54,3 +54,4 @@ Department: name [deptId]
 <COMES_FROM>: =N>ExternalTeacher =1>ExternalSchool
 <EMERGENCY_CONTACT>: =N>ExternalStudent =1>ExternalTeacher
 <ACHIEVES>: -1>Submission -N>Accomplishment
+<CONTINUES>: -1(prev_proj)>Project -1(next_proj)>Project
