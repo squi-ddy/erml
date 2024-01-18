@@ -1,0 +1,56 @@
+Institution: name address [instId]
+    ResearchOrganiser:
+    ExternalSchool:
+    ResearchInstitute:
+    Publisher:
+    ResearchOrganiser|ExternalSchool|ResearchInstitute|Publisher
+
+Journal: jName issn [id]
+
+Accomplishment: [accTitle]
+    Award: name prize
+    Publication: pubTitle doi
+        ConferencePublication:
+        JournalPublication: url
+        ConferencePublication^JournalPublication
+    Award^Publication
+
+ResearchEvent: name date_range{start_date end_date} format [year] [eventId] about
+    Conference: doi
+    Competition: awardTypes[]
+    Conference|Competition|ResearchEvent
+
+Submission: [code] subTitle subAbstract
+
+Project: [pCode] title abstract reportPdf year
+
+Person: name [email]
+    Student:
+        NushStudent: pfp <nush_sid> gradYear about pwd
+        ExternalStudent:
+        NushStudent^ExternalStudent
+    Teacher:
+        NushTeacher: pfp pwd
+            TeacherAdmin:
+            TeacherMentor:
+        ExternalTeacher:
+        NushTeacher^ExternalTeacher
+    ResearchMentor: 
+    Student|Teacher|ResearchMentor
+
+Department: name [deptId]
+
+<ORGANISES>: =N>ResearchEvent =M>ResearchOrganiser
+<PUBLISHED_BY>: =M>Publisher =N>Journal
+<PUBLISHED_IN>: -1>Journal =N>JournalPublication date
+<TO>: -1>ResearchEvent *N>Submission
+<SUBMITS>: =L>Submission -M>Student -N>Project
+<WORKS_ON>: -N>Student =M>Project
+<FROM>: -1>Department =N>Project
+<ADMINS>: =N>Project =1>TeacherMentor
+<MENTORS>: -M>Project =N>ResearchMentor
+<WORKS_AT>: -N>ResearchMentor -M>ResearchInstitute dept role officeAddress
+<BELONGS_TO>: -1>Department =N>NushTeacher
+<COMES_FROM>: =N>ExternalTeacher =1>ExternalSchool
+<EMERGENCY_CONTACT>: =N>ExternalStudent =1>ExternalTeacher
+<ACHIEVES>: -1>Submission -N>Accomplishment

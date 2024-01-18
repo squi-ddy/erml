@@ -1,0 +1,15 @@
+{
+    "compilerOptions": {
+        "module": "es2022",
+        "esModuleInterop": true,
+        "target": "es2022",
+        "moduleResolution": "node",
+        "sourceMap": true,
+        "outDir": "dist",
+        "resolveJsonModule": true,
+        "baseUrl": "src",
+        "strict": true
+    },
+    "include": ["src/**/*.ts"],
+    "lib": ["es2015"]
+}

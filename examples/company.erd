@@ -1,0 +1,11 @@
+Department: name [num] location[]
+Project: name [num] location
+Employee: ssn name{first-name initial last-name} [id] address salary sex birth-date
+Dependent: [name] sex birth-date relationship
+
+<Controls>: -1>Department =N>Project
+<WorksFor>: =N>Employee =1>Department
+<Manages>: -1>Employee =1>Department start-date
+<WorksOn>: -N>Employee -M>Project hours
+<Supervisor>: -1(supervisor)>Employee -N(subordinate)>Employee
+<Has>: -1>Employee *N>Dependent

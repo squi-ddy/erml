@@ -1,0 +1,16 @@
+Person: name [ssn] sex address birth-date
+    Employee: salary
+        Faculty: rank
+        Staff: position
+        StudentAssistant: workTime
+            ResearchAssistant: project
+            TeachingAssistant: courses[]
+            ResearchAssistant^TeachingAssistant
+        Faculty^Staff^StudentAssistant
+    Alumni: degrees[]{name year dept}
+    Student: dept
+        Graduate: programme
+        Undergraduate: class
+        [StudentAssistant]
+        Graduate^Undergraduate
+    Employee|Alumni|Student

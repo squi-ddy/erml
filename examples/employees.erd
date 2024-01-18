@@ -1,0 +1,9 @@
+Employee: name{f-name m-init l-name} [ssn] birth-date address
+    Manager:
+    Salaried_Employee: salary
+    Hourly_Employee: pay-scale
+    Engineer: eng-type
+    Technician: t-grade
+    Secretary: typing-speed
+    Secretary^Technician^Engineer^Employee
+    + Salaried_Employee^Hourly_Employee
