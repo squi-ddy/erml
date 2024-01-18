@@ -1,0 +1,20 @@
+Animal: [id] age gender
+
+Type: [name]
+
+Employee: name ssn [id] address phonenum
+    TypeKeeper:
+    CageKeeper:
+    TypeKeeper|CageKeeper
+
+Disease: [name]
+
+Cage: [id] height space
+    OccupiedCage:
+
+<AnimalType>: -1>Type *N>Animal
+<In>: =N>Animal =1>OccupiedCage
+<Keeps>: =N>OccupiedCage =M>CageKeeper
+<Has>: -M>Animal -N>Disease begin-time duration
+<Handles>: -M>TypeKeeper =N>Disease
+<CaresFor>: -1>Type =N>TypeKeeper
