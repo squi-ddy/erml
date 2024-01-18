@@ -1,7 +1,4 @@
 {
     "typescript.tsdk": "node_modules/typescript/lib",
-    "cSpell.words": [
-        "erml",
-        "Graphviz"
-    ]
+    "cSpell.words": ["erml", "Graphviz"]
 }

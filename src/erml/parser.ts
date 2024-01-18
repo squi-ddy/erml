@@ -5,7 +5,7 @@ import SubclassRelationship from "./types/subclassRelationship"
 
 enum LineEntityTypes {
     ENTITY,
-    RELATIONSHIP
+    RELATIONSHIP,
 }
 
 const LineEntityTypesDisplay = {
@@ -82,7 +82,15 @@ export default class Parser {
             if (symbol.startsWith("<") && symbol.endsWith(">")) {
                 // relationship
                 symbol = symbol.substring(1, symbol.length - 1).trim()
-                this._relationshipSymbolsMap.set(symbol, [i, { name: symbol, endpoints: [], attributes: [], isOwning: false }])
+                this._relationshipSymbolsMap.set(symbol, [
+                    i,
+                    {
+                        name: symbol,
+                        endpoints: [],
+                        attributes: [],
+                        isOwning: false,
+                    },
+                ])
                 this._lineSymbols.push({
                     hasSymbol: true,
                     symbol: symbol,
@@ -90,7 +98,16 @@ export default class Parser {
                 })
             } else {
                 // normal entity
-                this._entitySymbolsMap.set(symbol, [i, { name: symbol, attributes: [], relationships: [], subclassRelationships: [], isWeak: false }])
+                this._entitySymbolsMap.set(symbol, [
+                    i,
+                    {
+                        name: symbol,
+                        attributes: [],
+                        relationships: [],
+                        subclassRelationships: [],
+                        isWeak: false,
+                    },
+                ])
                 this._lineSymbols.push({
                     hasSymbol: true,
                     symbol: symbol,
@@ -340,7 +357,7 @@ export default class Parser {
                 if (
                     !(
                         this._lineType[i - 1] === LineTypes.PLUS ||
-                        this._lineType[i - 1] === LineTypes.SYMBOL_DEFINITION || 
+                        this._lineType[i - 1] === LineTypes.SYMBOL_DEFINITION ||
                         this._lineType[i - 1] === LineTypes.SUBCLASS_DEFINITION
                     )
                 ) {
@@ -532,13 +549,14 @@ export default class Parser {
                     )
                 }
                 isComposite = true
-                ;[currentLineNum, compositeChildren] = this._parseAndValidateEntityAttributes(
-                    line,
-                    currentLineNum,
-                    i + 1,
-                    endIndex,
-                    _attrNameSet
-                )
+                ;[currentLineNum, compositeChildren] =
+                    this._parseAndValidateEntityAttributes(
+                        line,
+                        currentLineNum,
+                        i + 1,
+                        endIndex,
+                        _attrNameSet,
+                    )
                 if (compositeChildren.length === 0) {
                     throw new Error(
                         `Composite ${this._attributeDisplay(
@@ -575,10 +593,14 @@ export default class Parser {
                 this._lineOwnedBy[i] = lineOwnedByMap[this._lineOwnedBy[i]]
             }
             if (this._lineType[i] === LineTypes.PLUS) {
-                this._scriptLineNoSymbolPlusMerged[this._scriptLineNoSymbolPlusMerged.length - 1] += ('\n' + this._scriptLineNoSymbol[i].trim().substring(1))
+                this._scriptLineNoSymbolPlusMerged[
+                    this._scriptLineNoSymbolPlusMerged.length - 1
+                ] += "\n" + this._scriptLineNoSymbol[i].trim().substring(1)
                 lineOwnedByMap.push(lineOwnedByMap[i - 1])
             } else {
-                this._scriptLineNoSymbolPlusMerged.push(this._scriptLineNoSymbol[i].trim())
+                this._scriptLineNoSymbolPlusMerged.push(
+                    this._scriptLineNoSymbol[i].trim(),
+                )
                 lineOwnedByMap.push(i)
             }
         }
@@ -604,10 +626,17 @@ export default class Parser {
         let currentLineNum = 0
         for (let i = 0; i < this._scriptLineNoSymbolPlusMerged.length; i++) {
             // deal with block starts and ends
-            if (i === 0 || this._lineOwnedBy[currentLineNum] > this._lineOwnedBy[currentLineNum - 1]) {
+            if (
+                i === 0 ||
+                this._lineOwnedBy[currentLineNum] >
+                    this._lineOwnedBy[currentLineNum - 1]
+            ) {
                 // block start, add to subclass stack
                 currentSubclassesStack.push(new Set())
-            } else if (this._lineOwnedBy[currentLineNum] < this._lineOwnedBy[currentLineNum - 1]) {
+            } else if (
+                this._lineOwnedBy[currentLineNum] <
+                this._lineOwnedBy[currentLineNum - 1]
+            ) {
                 // block end, pop from subclass stack
                 const currentSubclasses = currentSubclassesStack.pop()
                 if (!currentSubclasses) {
@@ -617,10 +646,14 @@ export default class Parser {
                 }
                 if (currentSubclasses.size > 0) {
                     // add to subclasses of the owning entity
-                    const entity = this._lineToEntity(this._lineOwnedBy[currentLineNum - 1])
+                    const entity = this._lineToEntity(
+                        this._lineOwnedBy[currentLineNum - 1],
+                    )
                     if (!entity) {
                         throw new Error(
-                            `Internal error: entity not found at line ${currentLineNum - 1}`,
+                            `Internal error: entity not found at line ${
+                                currentLineNum - 1
+                            }`,
                         )
                     }
                     currentSubclasses.forEach((subclass) => {
@@ -628,7 +661,8 @@ export default class Parser {
                             superclass: entity,
                             subclass: subclass,
                             isDirect: true,
-                        })})
+                        })
+                    })
                 }
             }
 
@@ -646,7 +680,9 @@ export default class Parser {
                         )
                     }
                     if (symbol.type === LineEntityTypes.RELATIONSHIP) {
-                        const relationship = this._relationshipSymbolsMap.get(symbol.symbol)
+                        const relationship = this._relationshipSymbolsMap.get(
+                            symbol.symbol,
+                        )
                         if (!relationship) {
                             throw new Error(
                                 `Internal error: relationship ${symbol.symbol} somehow not found`,
@@ -654,23 +690,35 @@ export default class Parser {
                         }
                         if (relationship[0] !== currentLineNum) {
                             throw new Error(
-                                `Internal error: line numbers do not match up during final parse - expected ${(relationship ?? [-1])[0]}, got ${currentLineNum}`,
+                                `Internal error: line numbers do not match up during final parse - expected ${
+                                    (relationship ?? [-1])[0]
+                                }, got ${currentLineNum}`,
                             )
                         }
-                        const [endLine] = this._parseRelationship(this._scriptLineNoSymbolPlusMerged[i], currentLineNum, relationship[1])
+                        const [endLine] = this._parseRelationship(
+                            this._scriptLineNoSymbolPlusMerged[i],
+                            currentLineNum,
+                            relationship[1],
+                        )
                         currentLineNum = endLine + 1
                     } else {
                         // handle entity
-                        const [endLine, attrs] = this._parseAndValidateEntityAttributes(this._scriptLineNoSymbolPlusMerged[i], currentLineNum)
+                        const [endLine, attrs] =
+                            this._parseAndValidateEntityAttributes(
+                                this._scriptLineNoSymbolPlusMerged[i],
+                                currentLineNum,
+                            )
                         const entity = this._entitySymbolsMap.get(symbol.symbol)
                         if (!entity) {
                             throw new Error(
                                 `Internal error: entity ${symbol.symbol} somehow not found`,
                             )
-                        } 
+                        }
                         if (entity[0] !== currentLineNum) {
                             throw new Error(
-                                `Internal error: line numbers do not match up during final parse - expected ${(entity ?? [-1])[0]}, got ${currentLineNum}`,
+                                `Internal error: line numbers do not match up during final parse - expected ${
+                                    (entity ?? [-1])[0]
+                                }, got ${currentLineNum}`,
                             )
                         }
                         if (this._lineOwnedBy[currentLineNum] !== -1) {
@@ -688,28 +736,50 @@ export default class Parser {
                             }
                         }
                         entity[1].attributes = attrs
-                        currentSubclassesStack[currentSubclassesStack.length - 1].add(entity[1])
+                        currentSubclassesStack[
+                            currentSubclassesStack.length - 1
+                        ].add(entity[1])
                         currentLineNum = endLine + 1
                     }
                     break
                 case LineTypes.SUBCLASS_DEFINITION:
-                    const superclass = this._lineToEntity(this._lineOwnedBy[currentLineNum])
+                    const superclass = this._lineToEntity(
+                        this._lineOwnedBy[currentLineNum],
+                    )
                     if (!superclass) {
                         throw new Error(
                             `Internal error: owning entity not found at line ${currentLineNum}`,
                         )
                     }
-                    const [endLine, subclassRelationships] = this._parseSubclassDefinitions(this._scriptLineNoSymbolPlusMerged[i], currentLineNum, superclass, currentSubclassesStack[currentSubclassesStack.length - 1])
-                    superclass.subclassRelationships.push(...subclassRelationships)
+                    const [endLine, subclassRelationships] =
+                        this._parseSubclassDefinitions(
+                            this._scriptLineNoSymbolPlusMerged[i],
+                            currentLineNum,
+                            superclass,
+                            currentSubclassesStack[
+                                currentSubclassesStack.length - 1
+                            ],
+                        )
+                    superclass.subclassRelationships.push(
+                        ...subclassRelationships,
+                    )
                     currentLineNum = endLine + 1
                     break
                 case LineTypes.SUBCLASS_REFERENCE:
                     // append to stack
-                    const entityName = this._scriptLineNoSymbolPlusMerged[i].substring(1, this._scriptLineNoSymbolPlusMerged[i].length - 1).trim()
+                    const entityName = this._scriptLineNoSymbolPlusMerged[i]
+                        .substring(
+                            1,
+                            this._scriptLineNoSymbolPlusMerged[i].length - 1,
+                        )
+                        .trim()
                     const entity = this._entitySymbolsMap.get(entityName)
                     if (!entity) {
                         throw new Error(
-                            `${this._lineDisplay(currentLineNum, true)}: entity ${entityName} does not exist`,
+                            `${this._lineDisplay(
+                                currentLineNum,
+                                true,
+                            )}: entity ${entityName} does not exist`,
                         )
                     }
                     // check for key attributes
@@ -724,9 +794,10 @@ export default class Parser {
                             )
                         }
                     }
-                    currentSubclassesStack[currentSubclassesStack.length - 1].add(entity[1])
+                    currentSubclassesStack[
+                        currentSubclassesStack.length - 1
+                    ].add(entity[1])
                     currentLineNum += 1
-
             }
         }
         if (this._lineOwnedBy[currentLineNum - 1] > 0) {
@@ -739,10 +810,14 @@ export default class Parser {
             }
             if (currentSubclasses.size > 0) {
                 // add to subclasses of the owning entity
-                const entity = this._lineToEntity(this._lineOwnedBy[currentLineNum - 1])
+                const entity = this._lineToEntity(
+                    this._lineOwnedBy[currentLineNum - 1],
+                )
                 if (!entity) {
                     throw new Error(
-                        `Internal error: entity not found at line ${currentLineNum - 1}`,
+                        `Internal error: entity not found at line ${
+                            currentLineNum - 1
+                        }`,
                     )
                 }
                 currentSubclasses.forEach((subclass) => {
@@ -750,12 +825,18 @@ export default class Parser {
                         superclass: entity,
                         subclass: subclass,
                         isDirect: true,
-                    })})
+                    })
+                })
             }
         }
     }
 
-    _parseSubclassDefinitions(line: string, lineNum: number, superclass: Entity, validSubclasses: Set<Entity>): [number, SubclassRelationship[]] {
+    _parseSubclassDefinitions(
+        line: string,
+        lineNum: number,
+        superclass: Entity,
+        validSubclasses: Set<Entity>,
+    ): [number, SubclassRelationship[]] {
         function addSubclassDef(parser: Parser): void {
             const token = currToken.join("")
             if (token.length === 0) {
@@ -792,7 +873,9 @@ export default class Parser {
                         `${parser._lineDisplay(
                             currentLineNum,
                             true,
-                        )}: entity '${subTokens[0]}' is not included in this scope`,
+                        )}: entity '${
+                            subTokens[0]
+                        }' is not included in this scope`,
                     )
                 }
                 subclassRelationships.push({
@@ -863,7 +946,11 @@ export default class Parser {
         return [currentLineNum, subclassRelationships]
     }
 
-    _parseRelationship(line: string, lineNum: number, relationship: Relationship): [number] {
+    _parseRelationship(
+        line: string,
+        lineNum: number,
+        relationship: Relationship,
+    ): [number] {
         function parseRelParam(parser: Parser): void {
             const token = currToken.join("")
             if (token.length === 0) {
@@ -899,7 +986,12 @@ export default class Parser {
                 let endpointNameField = undefined
                 let endpointName = token.substring(2, token.indexOf(">"))
                 if (endpointName.length === 0) {
-                } else if (!(endpointName.startsWith('(') && endpointName.endsWith(')'))) {
+                } else if (
+                    !(
+                        endpointName.startsWith("(") &&
+                        endpointName.endsWith(")")
+                    )
+                ) {
                     throw new Error(
                         `${parser._lineDisplay(
                             currentLineNum,
@@ -907,7 +999,10 @@ export default class Parser {
                         )}: invalid endpoint name '${endpointName}', should be surrounded by parentheses`,
                     )
                 } else {
-                    endpointNameField = endpointName.substring(1, endpointName.length - 1)
+                    endpointNameField = endpointName.substring(
+                        1,
+                        endpointName.length - 1,
+                    )
                     if (!endpointNameField.match(/^[a-zA-Z0-9_-]+$/)) {
                         throw new Error(
                             `${parser._lineDisplay(
@@ -998,18 +1093,10 @@ export default class Parser {
     _collectObjects(): [Entity[], Relationship[]] {
         const entities: Entity[] = []
         const relationships: Relationship[] = []
-        for (const [
-            _,
-            [__,
-            obj],
-        ] of this._entitySymbolsMap.entries()) {
+        for (const [_, [__, obj]] of this._entitySymbolsMap.entries()) {
             entities.push(obj)
         }
-        for (const [
-            _,
-            [__,
-            obj],
-        ] of this._relationshipSymbolsMap.entries()) {
+        for (const [_, [__, obj]] of this._relationshipSymbolsMap.entries()) {
             relationships.push(obj)
         }
         return [entities, relationships]

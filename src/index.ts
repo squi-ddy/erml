@@ -9,4 +9,3 @@ for await (const line of console) {
     console.log(objectsToGraphviz(objects))
     break
 }
-

@@ -17,6 +17,8 @@ type SingleSubclassRelationship = {
 // disjoint: ^
 // overlapping: |
 
-type SubclassRelationship = MultiSubclassRelationship | SingleSubclassRelationship
+type SubclassRelationship =
+    | MultiSubclassRelationship
+    | SingleSubclassRelationship
 
 export default SubclassRelationship
