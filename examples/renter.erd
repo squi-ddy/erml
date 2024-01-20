@@ -1,0 +1,11 @@
+Renter: [id] name{lastname firstname middleinit} address phone email
+
+Property: [id] street citystate zip nbrrooms baserate type
+    BeachProperty: blockstobeach
+    MountainProperty: 
+    BeachProperty^MountainProperty
+
+Activity: [id] Activity
+
+<PropertyActivity>: -1>Property -N>Activity
+<RenterAgreement>: -N>Renter -M>Property begindate enddate amount

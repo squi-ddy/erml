@@ -1,4 +1,4 @@
-import Parser from "erml/parser"
+import Parser from "./erml/parser"
 import objectsToGraphviz from "erml/graphviz/converter"
 
 for await (const line of console) {

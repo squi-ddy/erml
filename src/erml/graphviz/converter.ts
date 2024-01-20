@@ -32,8 +32,6 @@ function attributesToNodesEdges(
             nodeAttributes.push("peripheries=2")
         }
         if (attribute.isComposite) {
-            instructions.push(`subgraph cluster${counter.num++} {`)
-            instructions.push("style=invis")
             instructions.push(
                 ...attributesToNodesEdges(
                     attribute.components,
@@ -43,7 +41,6 @@ function attributesToNodesEdges(
                 ),
             )
             instructions.push(`"${nodeName}" [${nodeAttributes.join(",")}]`)
-            instructions.push("}")
             instructions.push(`"${parentName}" -- "${nodeName}"`)
         } else {
             instructions.push(`"${nodeName}" [${nodeAttributes.join(",")}]`)
@@ -61,6 +58,7 @@ function objectsToGraphviz(objects: [Entity[], Relationship[]]): string {
         "overlap=false",
         "splines=true",
         "nodesep=0.5",
+        "K=0.2",
     ]
     const counter = { num: 0 }
 
@@ -68,8 +66,10 @@ function objectsToGraphviz(objects: [Entity[], Relationship[]]): string {
     entities.forEach((entity) => {
         const nodeAttributes = ["shape=box", `label="${entity.name}"`]
         if (entity.isWeak) nodeAttributes.push("peripheries=2")
+        
         instructions.push(`subgraph cluster${counter.num++} {`)
         instructions.push("style=invis")
+        instructions.push("K=0.05")
         instructions.push(`"${entity.name}" [${nodeAttributes.join(",")}]`)
 
         // attributes
@@ -102,16 +102,23 @@ function objectsToGraphviz(objects: [Entity[], Relationship[]]): string {
                 } else {
                     nodeAttributes.push("label=o")
                 }
+
                 instructions.push(
                     `".${counter.num}" [${nodeAttributes.join(",")}]`,
                 )
                 // subclass arrows
                 subclassRelationship.subclasses.forEach((subclass) => {
                     instructions.push(
+                        `"${subclass.name}"`
+                    )
+                    instructions.push(
                         `".${counter.num}" -- "${subclass.name}" [arrowtail=icurve, dir=back]`,
                     )
                 })
                 // superclass arrow
+                instructions.push(
+                    `"${subclassRelationship.superclass.name}"`
+                )
                 let inst = `"${subclassRelationship.superclass.name}" -- ".${counter.num}"`
                 if (!subclassRelationship.isOptional) {
                     // double line
@@ -129,6 +136,7 @@ function objectsToGraphviz(objects: [Entity[], Relationship[]]): string {
         if (relationship.isOwning) nodeAttributes.push("peripheries=2")
         instructions.push(`subgraph cluster${counter.num++} {`)
         instructions.push("style=invis")
+        instructions.push("K=0.05")
         instructions.push(
             `"${relationship.name}" [${nodeAttributes.join(",")}]`,
         )

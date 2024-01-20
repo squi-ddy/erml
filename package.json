@@ -1,11 +1,11 @@
 {
-    "name": "backend",
+    "name": "erml",
     "version": "0.0.0",
     "description": "",
-    "main": "index.js",
+    "main": "src/erml/parser.ts",
     "scripts": {
-        "start": "bun src/index.ts",
-        "build": "etsc",
+        "start": "bun src/console.ts",
+        "build": "bun build src/erml/parser.ts --outdir dist --minify --target=node",
         "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore",
         "typecheck": "tsc --noemit",
         "format": "prettier --write .",
