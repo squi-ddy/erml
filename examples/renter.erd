@@ -7,5 +7,5 @@ Property: [id] street citystate zip nbrrooms baserate type
 
 Activity: [id] Activity
 
-<PropertyActivity>: -1>Property -N>Activity
+<PropertyActivity>: -1>MountainProperty -N>Activity
 <RenterAgreement>: -N>Renter -M>Property begindate enddate amount

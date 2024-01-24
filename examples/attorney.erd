@@ -1,0 +1,9 @@
+Attorney: [id] name street city state zip-code specialty[] bar[]
+Client: [id] name street city state zip-code telephone dob
+Court: [id] name city state zip-code
+Case: [id] description type
+Judge: [id] name years
+
+<RuledIn>: -1>Court -N>Case
+<PresidesOver>: -N>Judge -1>Court
+<Retains>: -N>Attorney -M>Case -L>Client date
